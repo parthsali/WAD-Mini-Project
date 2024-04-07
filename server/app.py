@@ -16,12 +16,22 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+        return jsonify({'error': 'Please upload a file'}), 400
     file = request.files['file']
+
+
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
+    
+    fileExtension = file.filename.split('.')[-1]
+    
+    if fileExtension not in ['mp4', 'avi', 'mkv', 'mov', 'flv', 'wmv']:
+        return jsonify({'error': 'Please upload a valid video file'}), 400
+    
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     return jsonify({'message': 'File uploaded successfully'}), 200
+
+
 
 
 if __name__ == '__main__':

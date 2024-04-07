@@ -2,18 +2,10 @@ import { useState } from "react";
 
 function FileUpload() {
   const [file, setFile] = useState(null);
-  const [fileUrl, setFileUrl] = useState(null);
-  const [fileActive, setFileActive] = useState(true);
-  const [urlActive, setUrlActive] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleChangeFile = (e) => {
     setFile(e.target.files[0]);
-    urlActive && setUrlActive(false);
-  };
-
-  const handleChangeUrl = (e) => {
-    setFileUrl(e.target.value);
-    fileActive && setFileActive(false);
   };
 
   const handleSubmit = () => {
@@ -25,15 +17,17 @@ function FileUpload() {
       body: formData,
     })
       .then((response) => {
-        response.json();
-        console.log(response.status);
-
-        if (response.status === 200) {
-          alert("File uploaded successfully");
-        }
+        return response.json();
       })
       .then((data) => {
         console.log(data);
+        if (data.error) {
+          setError(data.error);
+        }
+
+        if (data.message) {
+          alert(data.message);
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -41,19 +35,9 @@ function FileUpload() {
   };
 
   return (
-    <div className="w-screen h-screen mt-10 flex items-center flex-col">
+    <div className=" h-screen mt-10 flex items-center flex-col">
       <h2 className="text-2xl font-bold mb-4">Upload a file</h2>
       <div className="w-[90%] flex items-center justify-center flex-col  border border-gray-300 p-4 rounded-lg">
-        <div className="w-[90%]">
-          <input
-            type="text"
-            className="w-full border border-gray-300 p-2 mb-4 outline-none rounded-md dark:bg-gray-700 dark:border-gray-600"
-            placeholder="Enter Link"
-            value={fileUrl}
-            onChange={handleChangeUrl}
-            disabled={!urlActive}
-          />
-        </div>
         <div className="flex items-center justify-center w-[90%]">
           <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -85,7 +69,6 @@ function FileUpload() {
               id="dropzone-file"
               type="file"
               className="hidden"
-              disabled={!fileActive}
             />
           </label>
         </div>
@@ -105,6 +88,9 @@ function FileUpload() {
           >
             Upload
           </button>
+        </div>
+        <div className="w-[90%] flex items-center justify-center mt-4 text-red-500">
+          {error && <p>{error}</p>}
         </div>
       </div>
     </div>
